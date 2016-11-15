@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Ajax Categories
+ * Plugin Name: Ajax Form
  * Plugin URI: https://mer.vin
  * Description: Allow users to change the category
  * Version: 1.0.0
@@ -12,10 +12,10 @@
 add_action( 'wp_enqueue_scripts', 'ajax_category_enqueue_scripts' );
 function ajax_category_enqueue_scripts() {
 	if( is_single() ) {
-		wp_enqueue_style( 'cat', plugins_url( '/cat.css', __FILE__ ) );
+		wp_enqueue_style( 'cat', plugins_url( '/form.css', __FILE__ ) );
 	}
 
-	wp_enqueue_script( 'cat', plugins_url( '/cat.js', __FILE__ ), array('jquery'), '1.0', true );
+	wp_enqueue_script( 'cat', plugins_url( '/form.js', __FILE__ ), array('jquery'), '1.0', true );
 
 	wp_localize_script( 'cat', 'categoryname', array(
 		'ajax_url' => admin_url( 'admin-ajax.php' )
@@ -29,6 +29,16 @@ function ajax_category_display( $content ) {
 
 	if ( is_single() ) {
 		
+?>
+
+<form class="form" id="ajax-contact-form" action="#">                            
+        <input type="text" name="name" id="name"  placeholder="Name" required="">
+        <button type="submit" class="btn">Submit</button>
+</form>
+
+<?php
+
+
 		$love = get_post_meta( get_the_ID(), 'post_cat', true );
 		$love = ( empty( $love ) ) ? 0 : $love;
 		$category_name = 'cat';
@@ -40,20 +50,10 @@ function ajax_category_display( $content ) {
 
 }
 
-add_action( 'wp_ajax_nopriv_ajax_category_add_category', 'ajax_category_add_category' );
-add_action( 'wp_ajax_ajax_category_add_category', 'ajax_category_add_category' );
+add_action('wp_ajax_contact_form', 'contact_form');
+add_action('wp_ajax_nopriv_contact_form', 'contact_form');
 
-function ajax_category_add_category() {
-	$love = get_post_meta( $_REQUEST['post_id'], 'post_cat', true );
-	//$love = $_REQUEST['category_name'];
-	$love = $love+2;
-	update_post_meta( $_REQUEST['post_id'], 'post_cat', $love );
-	if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) { 
-		echo $love;
-		die();
-	}
-	else {
-		wp_redirect( get_permalink( $_REQUEST['post_id'] ) );
-		exit();
-	}
+function contact_form()
+{
+echo $_POST['name'];    
 }
