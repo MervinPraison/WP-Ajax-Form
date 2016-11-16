@@ -9,44 +9,39 @@
  * License: GPL2
  */
 
-add_action( 'wp_enqueue_scripts', 'ajax_category_enqueue_scripts' );
-function ajax_category_enqueue_scripts() {
+add_action( 'wp_enqueue_scripts', 'ajax_form_enqueue_scripts' );
+function ajax_form_enqueue_scripts() {
 	if( is_single() ) {
-		wp_enqueue_style( 'cat', plugins_url( '/form.css', __FILE__ ) );
+		wp_enqueue_style( 'formset', plugins_url( '/form.css', __FILE__ ) );
 	}
 
-	wp_enqueue_script( 'cat', plugins_url( '/form.js', __FILE__ ), array('jquery'), '1.0', true );
+	wp_enqueue_script( 'formset', plugins_url( '/form.js', __FILE__ ), array('jquery'), '1.0', true );
 
-	wp_localize_script( 'cat', 'categoryname', array(
+	wp_localize_script( 'formset', 'catform', array(
 		'ajax_url' => admin_url( 'admin-ajax.php' )
 	));
 
 }
 
-add_filter( 'the_content', 'ajax_category_display', 99 );
-function ajax_category_display( $content ) {
-	$love_text = '';
+add_filter( 'the_content', 'ajax_form_display', 99 );
+function ajax_form_display( $content ) {
+	$value = '';
 
 	if ( is_single() ) {
 		
-?>
-
-<form class="form" id="ajax-contact-form" action="#">                            
-        <input type="text" name="name" id="name"  placeholder="Name" required="">
-        <button type="submit" class="btn">Submit</button>
-</form>
-
-<?php
 
 
-		$love = get_post_meta( get_the_ID(), 'post_cat', true );
-		$love = ( empty( $love ) ) ? 0 : $love;
-		$category_name = 'cat';
-		$love_text = '<p class="cat-received"><a class="cat-button" href="' . admin_url( 'admin-ajax.php?action=ajax_category_add_category&post_id=' . get_the_ID() ) . '&category_name='. $category_name .'" data-id="' . get_the_ID() .'" data-category="' . $category_name . '">Add Category</a><span id="cat-count">' . $love . '</span></p>'; 
-	
+$value =<<<EOT
+<form class="form" method="post" id="ajax-contact-form" action="/aah/wp-admin/admin-ajax.php?action=contact_form">
+<input type="text" name="name" id="name"  placeholder="Name" required="">
+<button type="submit" class="btn">Submit</button></form>
+EOT;
+
+$value .= '<br /><span id="form-output">Output</span>';
+
 	}
 
-	return $content . $love_text;
+	return $content . $value;
 
 }
 
@@ -55,5 +50,6 @@ add_action('wp_ajax_nopriv_contact_form', 'contact_form');
 
 function contact_form()
 {
-echo $_POST['name'];    
+echo $_REQUEST['name'];   
+die(); 
 }
